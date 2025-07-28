@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Diretório de cache para arquivos temporários -->
+    <cache-path name="temp_images" path="." />
+    
+    <!-- Diretório interno de arquivos para documentos criptografados -->
+    <files-path name="encrypted_docs" path="." />
+    
+    <!-- Diretório externo de cache se necessário -->
+    <external-cache-path name="external_temp" path="." />
+    
+    <!-- Diretório de downloads externos (se necessário para exportação) -->
+    <external-files-path name="external_files" path="Documents" />
+</paths>
