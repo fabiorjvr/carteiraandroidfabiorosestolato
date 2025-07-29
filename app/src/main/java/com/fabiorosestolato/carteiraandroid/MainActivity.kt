@@ -5,12 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.fabiorosestolato.carteiraandroid.navigation.AppNavigation
 import com.fabiorosestolato.carteiraandroid.security.SecureLogger
 import com.fabiorosestolato.carteiraandroid.security.SecurityValidator
 import com.fabiorosestolato.carteiraandroid.security.initSecureLogger
@@ -19,8 +20,11 @@ import com.fabiorosestolato.carteiraandroid.ui.theme.CarteiraAndroidTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Inicializa o sistema de logging seguro
         initSecureLogger()
         
+        // Valida a segurança do dispositivo
         val validator = SecurityValidator(this)
         val report = validator.validateDeviceSecurity()
         if (!report.isSecure) {
@@ -30,29 +34,34 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CarteiraAndroidTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    CarteiraDigitalApp()
                 }
             }
         }
     }
 }
 
+/**
+ * Componente principal do aplicativo Carteira Digital
+ */
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun CarteiraDigitalApp() {
+    val navController = rememberNavController()
+    
+    AppNavigation(
+        navController = navController,
+        modifier = Modifier.fillMaxSize()
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun CarteiraDigitalAppPreview() {
     CarteiraAndroidTheme {
-        Greeting("Android")
+        CarteiraDigitalApp()
     }
 }

@@ -2,11 +2,15 @@ package com.fabiorosestolato.carteiraandroid.data.repository
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.fragment.app.FragmentActivity
 import com.fabiorosestolato.carteiraandroid.data.local.EncryptedFileManager
+import com.fabiorosestolato.carteiraandroid.data.model.Document
 import com.fabiorosestolato.carteiraandroid.data.share.FileShareManager
 import com.fabiorosestolato.carteiraandroid.domain.DocumentType
 import com.fabiorosestolato.carteiraandroid.security.BiometricAuthManager
+import java.io.File
 
 /**
  * Repositório principal para gerenciar documentos da carteira digital.
@@ -132,6 +136,77 @@ class DocumentRepository(context: Context) {
             if (documentData != null) {
                 onSuccess(documentData)
             }
+        }
+    }
+    
+    /**
+     * Retorna uma lista de objetos Document para um tipo específico
+     * @param documentType Tipo do documento
+     * @return Lista de documentos
+     */
+    fun getDocumentsByType(documentType: DocumentType): List<Document> {
+        val files = encryptedFileManager.listFiles(documentType.filePrefix)
+        return files.mapNotNull { fileName ->
+            try {
+                val file = File(encryptedFileManager.getFilePath(fileName))
+                if (file.exists()) {
+                    val fileSizeKB = file.length() / 1024
+                    val timestamp = extractTimestampFromFileName(fileName)
+                    val imageBitmap = loadDocumentImage(fileName)
+                    
+                    Document.fromExisting(
+                        id = fileName.substringBeforeLast("."),
+                        documentType = documentType,
+                        fileName = fileName,
+                        fileSizeKB = fileSizeKB,
+                        createdTimestamp = timestamp,
+                        imageBitmap = imageBitmap
+                    )
+                } else null
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+    
+    /**
+     * Retorna um documento específico por ID
+     * @param documentId ID do documento
+     * @return Documento ou null se não encontrado
+     */
+    fun getDocumentById(documentId: String): Document? {
+        return DocumentType.values().firstNotNullOfOrNull { type ->
+            getDocumentsByType(type).find { it.id == documentId }
+        }
+    }
+    
+    /**
+     * Carrega a imagem de um documento como Bitmap
+     * @param fileName Nome do arquivo
+     * @return Bitmap da imagem ou null se não conseguir carregar
+     */
+    private fun loadDocumentImage(fileName: String): Bitmap? {
+        return try {
+            val imageData = getDocument(fileName)
+            imageData?.let { data ->
+                BitmapFactory.decodeByteArray(data, 0, data.size)
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+    
+    /**
+     * Extrai o timestamp do nome do arquivo
+     * @param fileName Nome do arquivo
+     * @return Timestamp ou timestamp atual se não conseguir extrair
+     */
+    private fun extractTimestampFromFileName(fileName: String): Long {
+        return try {
+            val timestampStr = fileName.substringAfterLast("_").substringBeforeLast(".")
+            timestampStr.toLongOrNull() ?: System.currentTimeMillis()
+        } catch (e: Exception) {
+            System.currentTimeMillis()
         }
     }
 }

@@ -143,4 +143,29 @@ class EncryptedFileManager(private val context: Context) {
             e.printStackTrace()
         }
     }
+    
+    /**
+     * Lista todos os arquivos com um prefixo específico
+     * @param prefix Prefixo do arquivo
+     * @return Lista de nomes de arquivos
+     */
+    fun listFiles(prefix: String): List<String> {
+        return try {
+            context.filesDir.listFiles()?.filter { file ->
+                file.name.startsWith(prefix) && file.name.endsWith(".enc")
+            }?.map { it.name } ?: emptyList()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+    
+    /**
+     * Retorna o caminho completo de um arquivo
+     * @param fileName Nome do arquivo
+     * @return Caminho completo do arquivo
+     */
+    fun getFilePath(fileName: String): String {
+        return File(context.filesDir, fileName).absolutePath
+    }
 }
