@@ -2,9 +2,11 @@ package com.fabiorosestolato.carteiraandroid.data.repository
 
 import android.content.Context
 import android.content.Intent
+import androidx.fragment.app.FragmentActivity
 import com.fabiorosestolato.carteiraandroid.data.local.EncryptedFileManager
 import com.fabiorosestolato.carteiraandroid.data.share.FileShareManager
 import com.fabiorosestolato.carteiraandroid.domain.DocumentType
+import com.fabiorosestolato.carteiraandroid.security.BiometricAuthManager
 
 /**
  * Repositório principal para gerenciar documentos da carteira digital.
@@ -113,6 +115,23 @@ class DocumentRepository(context: Context) {
     fun hasAllDocumentTypes(): Boolean {
         return DocumentType.values().all { type ->
             getDocumentsByType(type).isNotEmpty()
+        }
+    }
+    
+    /**
+     * Acessa um documento com autenticação biométrica
+     * @param activity Activity que hospeda a autenticação
+     * @param fileName Nome do arquivo
+     * @param onSuccess Callback executado com os dados do documento após autenticação
+     */
+    fun accessDocumentWithAuth(activity: FragmentActivity, fileName: String, onSuccess: (ByteArray) -> Unit) {
+        BiometricAuthManager(activity).authenticateBeforeAction(
+            activity, "acessar documento"
+        ) { 
+            val documentData = getDocument(fileName)
+            if (documentData != null) {
+                onSuccess(documentData)
+            }
         }
     }
 }

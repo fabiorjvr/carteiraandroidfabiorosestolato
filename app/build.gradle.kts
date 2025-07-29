@@ -64,6 +64,11 @@ dependencies {
     
     // File operations
     implementation("androidx.documentfile:documentfile:1.0.1")
+    
+    // Biometric authentication
+    implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

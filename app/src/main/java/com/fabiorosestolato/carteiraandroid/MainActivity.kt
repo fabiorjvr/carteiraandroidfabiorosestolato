@@ -11,11 +11,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.fabiorosestolato.carteiraandroid.security.SecureLogger
+import com.fabiorosestolato.carteiraandroid.security.SecurityValidator
+import com.fabiorosestolato.carteiraandroid.security.initSecureLogger
 import com.fabiorosestolato.carteiraandroid.ui.theme.CarteiraAndroidTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initSecureLogger()
+        
+        val validator = SecurityValidator(this)
+        val report = validator.validateDeviceSecurity()
+        if (!report.isSecure) {
+            SecureLogger.logSecurity("insecure_device", mapOf("threats" to report.threats.size))
+        }
+        
         enableEdgeToEdge()
         setContent {
             CarteiraAndroidTheme {
